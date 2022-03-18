@@ -1,7 +1,7 @@
-Bullet = Object:extend()
+Bomb = Object:extend()
 
-function Bullet:new(x, y)
-    self.image = love.graphics.newImage("sprites/bullet.png")
+function Bomb:new(x, y)
+    self.image = love.graphics.newImage("sprites/bomb.png")
     self.x = x
     self.y = y
     self.speed = 700
@@ -9,17 +9,18 @@ function Bullet:new(x, y)
     self.height = self.image:getHeight()
 end
 
-function Bullet:update(dt)
-    --move bullet up
-    self.y = self.y - self.speed * dt
+function Bomb:update(dt)
+    --move bomb down
+    self.y = self.y + self.speed * dt
 
-    if self.y < 20 then
+    if self.y > love.graphics.getHeight() then
+        --destroy the bullet
         self.offScreen = true
-        --love.load()
     end
 end
 
-function Bullet:checkCollision(obj)
+
+function Bomb:checkCollision(obj)
     local self_left=self.x
     local self_right=self.x + self.width
     local self_top=self.y
@@ -35,16 +36,9 @@ function Bullet:checkCollision(obj)
     and self_bottom >obj_top
     and self_top < obj_bottom then
         self.dead=true
-        --increase enemy speed
-        -- if it is going left (so negative, need to decrease)
-        if obj.speed > 0 then
-            obj.speed=obj.speed+50
-        else
-            obj.speed=obj.speed-50
-        end
     end
 end
 
-function Bullet:draw()
+function Bomb:draw()
     love.graphics.draw(self.image, self.x, self.y)
 end

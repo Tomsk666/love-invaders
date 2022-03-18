@@ -3,11 +3,13 @@
 Player=Object:extend()
 
 function Player:new()
-    self.image = love.graphics.newImage("panda.png")
-    self.x = 300
-    self.y = 200
+    self.image = love.graphics.newImage("sprites/canon.png")
+    --self.image = love.graphics.newImage("panda.png")
+    self.x = love.graphics.getWidth() / 2
+    self.y = love.graphics.getHeight() - self.image:getHeight() - 10
     self.speed = 500
     self.width = self.image:getWidth()
+    self.height = self.image:getHeight()
 end
 
 function Player:update(dt)
@@ -29,6 +31,8 @@ end
 function Player:keyPressed(key)
     if key == "space" then
         table.insert(listOfBullets, Bullet(self.x + (self.width/2), self.y))
+    elseif key=="escape" then
+        love.event.quit()
     end
 end
 
