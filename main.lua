@@ -14,9 +14,21 @@ function love.load()
     listOfBullets = {} -- create a table (array) to store bullet objects
     listOfBombs = {} -- for alien bombs
     score = 0
+    lives = 3
+    playerDead=false
 end
 
 function love.update(dt)
+    if gamePaused then
+        return
+    end
+    --check if player was killed in last update, if so, re-draw them as a cannon
+    if playerDead then
+        local start = os.time()
+        repeat until os.time() > start + 0.5
+        player.image = love.graphics.newImage("sprites/canon.png")
+        playerDead=false
+    end
     player:update(dt)
     enemy:update(dt)
 
@@ -40,8 +52,9 @@ function love.update(dt)
         v:checkCollision(player)
         if v.dead then
             table.remove(listOfBombs,i)
-            score = score - 1
+            lives = lives - 1
             player.image=love.graphics.newImage("sprites/bang.png")
+            playerDead=true
         end
         if v.offScreen then
             table.remove(listOfBombs,i)
@@ -50,7 +63,12 @@ function love.update(dt)
 end
 
 function love.draw()
-    love.graphics.print("Score: " .. score, 10, 20) -- .. is string concatenation!
+    if gamePaused then
+        love.graphics.print("PAUSED", love.graphics.getWidth() / 2 -50, love.graphics.getHeight() / 2)
+        return
+    end
+    love.graphics.print("Score: " .. score, 20, 20) -- .. is string concatenation!
+    love.graphics.print("Lives: " .. lives, love.graphics.getWidth()-70, 20)
     player:draw()
     enemy:draw()
     for i, v in ipairs (listOfBullets) do
@@ -66,3 +84,7 @@ function love.keypressed(key)
     player:keyPressed(key)
 end
 
+--check if player has moved to another application window
+function love.focus(f)
+    gamePaused = not f
+end
