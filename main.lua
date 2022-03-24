@@ -16,19 +16,15 @@ function love.load()
     score = 0
     lives = 3
     playerDead=false
+
+    local lastKey=null
 end
 
 function love.update(dt)
     if gamePaused then
         return
     end
-    --check if player was killed in last update, if so, re-draw them as a cannon
-    if playerDead then
-        local start = os.time()
-        repeat until os.time() > start + 0.5
-        player.image = love.graphics.newImage("sprites/canon.png")
-        playerDead=false
-    end
+
     player:update(dt)
     enemy:update(dt)
 
@@ -53,8 +49,17 @@ function love.update(dt)
         if v.dead then
             table.remove(listOfBombs,i)
             lives = lives - 1
+            --draw the player dead (bang.png)
+            love.graphics.clear()
             player.image=love.graphics.newImage("sprites/bang.png")
-            playerDead=true
+            player:draw()
+            love.graphics.present()
+            local start = os.time()
+            repeat until os.time() > start + 0.5
+            player.image = love.graphics.newImage("sprites/canon.png")
+            if lives == 0 then
+                playerDead=true
+            end
         end
         if v.offScreen then
             table.remove(listOfBombs,i)
@@ -67,6 +72,16 @@ function love.draw()
         love.graphics.print("PAUSED", love.graphics.getWidth() / 2 -50, love.graphics.getHeight() / 2)
         return
     end
+    if playerDead then
+        love.graphics.print("GAME OVER!!", love.graphics.getWidth() / 2 -50, love.graphics.getHeight() / 2)
+        love.graphics.print("Press 's' to play again", love.graphics.getWidth() / 2 -50, (love.graphics.getHeight() / 2) +20)
+        love.graphics.print("or 'escape' to Quit", love.graphics.getWidth() / 2 -50, (love.graphics.getHeight() / 2) +40)
+        if lastKey == "s" then 
+            love.load()
+        end
+        return
+    end
+
     love.graphics.print("Score: " .. score, 20, 20) -- .. is string concatenation!
     love.graphics.print("Lives: " .. lives, love.graphics.getWidth()-70, 20)
     player:draw()
@@ -81,6 +96,7 @@ end
 
 --check if player fires missile
 function love.keypressed(key)
+    lastKey=key
     player:keyPressed(key)
 end
 
