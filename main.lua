@@ -16,12 +16,11 @@ function love.load()
     score = 0
     lives = 3
     playerDead=false
-
-    local lastKey=null
+    level=1
 end
 
 function love.update(dt)
-    if gamePaused then
+    if gamePaused or playerDead then
         return
     end
 
@@ -76,9 +75,6 @@ function love.draw()
         love.graphics.print("GAME OVER!!", love.graphics.getWidth() / 2 -50, love.graphics.getHeight() / 2)
         love.graphics.print("Press 's' to play again", love.graphics.getWidth() / 2 -50, (love.graphics.getHeight() / 2) +20)
         love.graphics.print("or 'escape' to Quit", love.graphics.getWidth() / 2 -50, (love.graphics.getHeight() / 2) +40)
-        if lastKey == "s" then 
-            love.load()
-        end
         return
     end
 
@@ -94,10 +90,16 @@ function love.draw()
     end
 end
 
---check if player fires missile
+--check if player presses any keys
+--this gets invoked on a keypress event
 function love.keypressed(key)
-    lastKey=key
-    player:keyPressed(key)
+    if key == "space" then
+        player:keyPressed(key)
+    elseif key == "escape" then
+        love.event.quit()
+    elseif key == "s" then 
+        love.load()
+    end
 end
 
 --check if player has moved to another application window

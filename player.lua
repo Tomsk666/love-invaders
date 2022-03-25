@@ -31,8 +31,6 @@ end
 function Player:keyPressed(key)
     if key == "space" then
         table.insert(listOfBullets, Bullet(self.x + (self.width/2), self.y))
-    elseif key=="escape" then
-        love.event.quit()
     end
 end
 
