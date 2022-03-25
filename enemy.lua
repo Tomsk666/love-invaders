@@ -1,12 +1,11 @@
 Enemy = Object:extend()
 
-function Enemy:new(X, Y)
+function Enemy:new(Y)
     --self.image = love.graphics.newImage("snake.png")
     self.image = love.graphics.newImage("sprites/Invader.png")
     self.x = love.math.random(20, love.graphics.getWidth()-20)
-    -- depending on what level is how many aliens, so make sure they are spaced out vertically
-    self.y = level * 25
-    self.speed = enemySpeed
+    self.y = Y
+    self.speed = enemySpeed + love.math.random(1, 20)
     self.width = self.image:getWidth()
     self.height = self.image:getHeight()
 
