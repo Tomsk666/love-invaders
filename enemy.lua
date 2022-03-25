@@ -1,15 +1,16 @@
 Enemy = Object:extend()
 
-function Enemy:new()
+function Enemy:new(X, Y)
     --self.image = love.graphics.newImage("snake.png")
     self.image = love.graphics.newImage("sprites/Invader.png")
     self.x = love.math.random(20, love.graphics.getWidth()-20)
-    self.y = 50
-    self.speed = 50
+    -- depending on what level is how many aliens, so make sure they are spaced out vertically
+    self.y = level * 25
+    self.speed = enemySpeed
     self.width = self.image:getWidth()
     self.height = self.image:getHeight()
 
-    --create a quad to store the to frames in the spritesheet
+    --create a quad to store the animated gif frames in the spritesheet (2 frames)
     quads = {}
 	local spriteHeight = self.height / 2
 	for i=0,1 do

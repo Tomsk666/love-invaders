@@ -1,5 +1,3 @@
---class name should be same as filenmae
-
 Player=Object:extend()
 
 function Player:new()

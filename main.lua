@@ -9,18 +9,22 @@ function love.load()
     require "bullet"
     require "bomb"
 
+    score = 0
+    lives = 3
+    playerDead=false
+    level = 1
+    enemySpeed = 50
+    
     player = Player()
     enemy = Enemy()
     listOfBullets = {} -- create a table (array) to store bullet objects
     listOfBombs = {} -- for alien bombs
-    score = 0
-    lives = 3
-    playerDead=false
-    level=1
+
+    startScreen = true
 end
 
 function love.update(dt)
-    if gamePaused or playerDead then
+    if gamePaused or playerDead or startScreen then
         return
     end
 
@@ -67,14 +71,22 @@ function love.update(dt)
 end
 
 function love.draw()
-    if gamePaused then
-        love.graphics.print("PAUSED", love.graphics.getWidth() / 2 -50, love.graphics.getHeight() / 2)
+    if startScreen then
+        -- Display Start screen with instructions
+        love.graphics.print("Alien Invaders!!!", love.graphics.getWidth() / 2 -150, love.graphics.getHeight() / 3)
+        love.graphics.print("Arrow keys - Left & Right", love.graphics.getWidth() / 2 -150, (love.graphics.getHeight() / 3) +20)
+        love.graphics.print("Space bar - Shooot", love.graphics.getWidth() / 2 -150, (love.graphics.getHeight() / 3) +40)
+        love.graphics.print("Escape - Quit", love.graphics.getWidth() / 2 -150, (love.graphics.getHeight() / 3) +60)
+        love.graphics.print("Click Off/On Screen to Pause", love.graphics.getWidth() / 2 -150, (love.graphics.getHeight() / 3) +80)
+        love.graphics.print("Press ENTER to Start...", love.graphics.getWidth() / 2 -150, (love.graphics.getHeight() / 3) +120)
         return
-    end
-    if playerDead then
-        love.graphics.print("GAME OVER!!", love.graphics.getWidth() / 2 -50, love.graphics.getHeight() / 2)
-        love.graphics.print("Press 's' to play again", love.graphics.getWidth() / 2 -50, (love.graphics.getHeight() / 2) +20)
-        love.graphics.print("or 'escape' to Quit", love.graphics.getWidth() / 2 -50, (love.graphics.getHeight() / 2) +40)
+    elseif gamePaused then
+        love.graphics.print("PAUSED", love.graphics.getWidth() / 2 -50, love.graphics.getHeight() / 3)
+        return
+    elseif playerDead then
+        love.graphics.print("GAME OVER!!", love.graphics.getWidth() / 2 -100, love.graphics.getHeight() / 3)
+        love.graphics.print("Press 's' to play again", love.graphics.getWidth() / 2 -100, (love.graphics.getHeight() / 3) +20)
+        love.graphics.print("or 'escape' to Quit", love.graphics.getWidth() / 2 -100, (love.graphics.getHeight() / 3) +40)
         return
     end
 
@@ -98,7 +110,11 @@ function love.keypressed(key)
     elseif key == "escape" then
         love.event.quit()
     elseif key == "s" then 
+        --restart game
         love.load()
+    elseif key == "return" then 
+        --start game
+        startScreen = false
     end
 end
 
