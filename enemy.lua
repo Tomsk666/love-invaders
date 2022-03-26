@@ -1,11 +1,10 @@
 Enemy = Object:extend()
 
 function Enemy:new(Y)
-    --self.image = love.graphics.newImage("snake.png")
     self.image = love.graphics.newImage("sprites/Invader.png")
     self.x = love.math.random(20, love.graphics.getWidth()-20)
     self.y = Y
-    self.speed = enemySpeed + love.math.random(1, 20)
+    self.speed = enemySpeed + love.math.random(1, 25)
     self.width = self.image:getWidth()
     self.height = self.image:getHeight()
 

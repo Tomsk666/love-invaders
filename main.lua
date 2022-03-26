@@ -13,14 +13,13 @@ function love.load()
     lives = 3
     playerDead=false
     level = 1
-    enemySpeed = 50
+    enemySpeed = 35
 
     listOfBullets = {} -- create a table (array) to store bullet objects
     listOfBombs = {} -- for alien bombs
     listOfEnemies = {} -- store invaders
     table.insert(listOfEnemies, Enemy(50))
     player = Player()
-    --enemy = Enemy()
 
     startScreen = true
 end
@@ -42,23 +41,23 @@ function love.update(dt)
             v:checkCollision(e)
             if v.dead then
                 table.remove(listOfBullets,i)
-                score = score + 1
-                --enemy.image=love.graphics.newImage("sprites/explosion.png")
-                
+                score = score + 10
+
                 --draw an explosion
                 love.graphics.clear()
                 e.image=love.graphics.newImage("sprites/explosion.png")
                 e:draw()
                 love.graphics.present()
                 local start = os.time()
-                repeat until os.time() > start + 0.5
+                repeat until os.time() > start + 0.1
                 e.image=love.graphics.newImage("sprites/Invader.png")
                 
                 --remove the enemy shot
                 table.remove(listOfEnemies, n)
+
                 --check if we killed them all
                 if next(listOfEnemies) == nil then
-                    -- no more enemies!
+                    -- no more enemies! so Level up!
                     levelUp()
                     return
                  end
@@ -83,7 +82,7 @@ function love.update(dt)
             player:draw()
             love.graphics.present()
             local start = os.time()
-            repeat until os.time() > start + 0.5
+            repeat until os.time() > start + 0.1
             player.image = love.graphics.newImage("sprites/canon.png")
             if lives == 0 then
                 playerDead=true
@@ -156,8 +155,10 @@ end
 --function for when you clear all aliens on a level
 function levelUp()
     level = level + 1
-    --lets speed them up!
-    enemySpeed = enemySpeed + (level * 5)
+    --lets speed them up! on levels 5 & 10
+    if level == 5 or level == 10 or level == 15 then
+        enemySpeed = enemySpeed + (level * 5)
+    end
     --remove all existng aliens
     for k,v in pairs(listOfEnemies) do
         listOfEnemies[k] = nil
