@@ -54,7 +54,7 @@ function love.update(dt)
         bonus:update(dt)
     else
         bonus = nil
-        if love.math.random(1,2000) == 73 then
+        if love.math.random(1,2200) == 73 then
             --create a new bonus alien
             bonus = Bonus()
             bonusInPlay = true
