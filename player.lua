@@ -28,7 +28,7 @@ end
 
 function Player:keyPressed(key)
     if key == "space" then
-        table.insert(listOfBullets, Bullet(self.x + (self.width/2), self.y))
+        table.insert(listOfBullets, Bullet(self.x + (self.width/2) - 5, self.y - self.height))
     end
 end
 
