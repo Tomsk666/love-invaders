@@ -5,12 +5,24 @@ view_w = 800
 view_h = 600
 local background = {}
 
+
+alien_dead_snd = love.audio.newSource("snd/alien_dead.ogg", "static")
+bonus_ship_snd = love.audio.newSource("snd/bonus_ship.ogg", "static")
+player_dead_snd = love.audio.newSource("snd/player_dead.ogg", "static")
+player_shoot_snd = love.audio.newSource("snd/player_shoot.ogg", "static")
+
 function love.load()
+    --set window size, title & background
     love.window.setMode (view_w, view_h,{resizable=false,vsync=false})
     love.window.setTitle("Alien Invaders by Tom Millichamp")
     background.image = love.graphics.newImage("sprites/background.png")
     background.x = 0
     background.y = 0
+
+    --play our intr music
+    intro= love.audio.newSource("snd/intro.ogg", "stream")
+    intro:setLooping(true)
+    love.audio.play(intro)
 
     --uses 'classic' library that emulates object classes from https://github.com/rxi/classic
     Object=require "libs/classic"
@@ -31,12 +43,18 @@ function love.load()
     listOfBullets = {} -- create a table (array) to store bullet objects
     listOfBombs = {} -- for alien bombs
     listOfEnemies = {} -- store invaders
+
+    --create 1 alien & our player
+    --when we create an enemy, we pass in the Y co-ordinate for how far down the screen it appears
     table.insert(listOfEnemies, Enemy(45))
     player = Player()
+
+    --go to the start screen
     startScreen = true
 end
 
 function love.update(dt)
+    --only update if in play
     if gamePaused or playerDead or startScreen then
         return
     end
@@ -48,19 +66,25 @@ function love.update(dt)
         background.y = 0
     end
 
+    --update player
     player:update(dt)
 
+    --update the bonus alien (red alien) if it is on-screen
     if bonusInPlay then
         bonus:update(dt)
     else
+        --if it isn't then create one at random
         bonus = nil
-        if love.math.random(1,2200) == 73 then
+        if love.math.random(1,2500) == 73 then
             --create a new bonus alien
             bonus = Bonus()
             bonusInPlay = true
+            love.audio.play(bonus_ship_snd)
         end
     end
 
+    --update our table of alien enemies
+    --on each iteration, check if we hit one with our bullets
     for n,e in ipairs (listOfEnemies) do
         --enemy:update(dt)
         e:update(dt)
@@ -73,6 +97,7 @@ function love.update(dt)
             --check if bullet hit enemy
             v:checkCollision(e)
             if v.dead then
+                love.audio.play(alien_dead_snd)
                 table.remove(listOfBullets,i)
                 score = score + 10
 
@@ -102,6 +127,7 @@ function love.update(dt)
             if bonusInPlay and not v.dead then
                 v:checkCollision(bonus)
                 if v.dead then
+                    love.audio.play(alien_dead_snd)
                     table.remove(listOfBullets,i)
                     score=score + 50
                     --draw an explosion
@@ -126,10 +152,12 @@ function love.update(dt)
     end
 
     --update bombs aliens drop
+    --and check if they hit the player
     for i, v in ipairs (listOfBombs) do
         v:update(dt)
         v:checkCollision(player)
         if v.dead then
+            love.audio.play(player_dead_snd)
             table.remove(listOfBombs,i)
             lives = lives - 1
             --draw the player dead (bang.png)
@@ -155,21 +183,25 @@ end
 function love.draw()
     if startScreen then
         -- Display Start screen with instructions
-        love.graphics.print("Alien Invaders!!!", love.graphics.getWidth() / 2 -150, love.graphics.getHeight() / 3)
-        love.graphics.print("Arrow keys - Left & Right", love.graphics.getWidth() / 2 -150, (love.graphics.getHeight() / 3) +20)
-        love.graphics.print("Space bar - Shooot", love.graphics.getWidth() / 2 -150, (love.graphics.getHeight() / 3) +40)
-        love.graphics.print("Escape - Quit", love.graphics.getWidth() / 2 -150, (love.graphics.getHeight() / 3) +60)
-        love.graphics.print("Click Off/On Screen to Pause", love.graphics.getWidth() / 2 -150, (love.graphics.getHeight() / 3) +80)
-        love.graphics.print("Press ENTER to Start...", love.graphics.getWidth() / 2 -150, (love.graphics.getHeight() / 3) +120)
+        love.graphics.setNewFont(18)
+        love.graphics.printf("Alien Invaders!!!", 0, 200, love.graphics.getWidth(), "center")
+        love.graphics.setNewFont(12)
+        love.graphics.printf("Arrow keys - Left & Right", 0, 250, love.graphics.getWidth(), "center")
+        love.graphics.printf("Space bar - Shooot", 0, 280, love.graphics.getWidth(), "center")
+        love.graphics.printf("Escape - Quit", 0, 310, love.graphics.getWidth(), "center")
+        love.graphics.printf("Click Off/On Screen to Pause", 0, 340, love.graphics.getWidth(), "center")
+        love.graphics.printf("Press ENTER to Start...", 0, 400, love.graphics.getWidth(), "center")
         return
     elseif gamePaused then
-        love.graphics.print("PAUSED", love.graphics.getWidth() / 2 -50, love.graphics.getHeight() / 3)
+        love.graphics.printf("PAUSED", 0, love.graphics.getHeight() / 3, love.graphics.getWidth(), "center")
         return
     elseif playerDead then
-        love.graphics.print("GAME OVER!!", love.graphics.getWidth() / 2 -100, love.graphics.getHeight() / 3)
-        love.graphics.print("You Scored : " .. score, love.graphics.getWidth() / 2 -100, (love.graphics.getHeight() / 3) +20)
-        love.graphics.print("Press 's' to play again", love.graphics.getWidth() / 2 -100, (love.graphics.getHeight() / 3) +60)
-        love.graphics.print("or 'escape' to Quit", love.graphics.getWidth() / 2 -100, (love.graphics.getHeight() / 3) +80)
+        love.graphics.setNewFont(18)
+        love.graphics.printf("GAME OVER!!", 0, 200, love.graphics.getWidth(), "center")
+        love.graphics.setNewFont(12)
+        love.graphics.printf("You Scored : " .. score, 0, 250, love.graphics.getWidth(), "center")
+        love.graphics.printf("Press 's' to play again", 0, 300, love.graphics.getWidth(), "center")
+        love.graphics.printf("or 'escape' to Quit", 0, 330, love.graphics.getWidth(), "center")
         return
     end
 
@@ -177,8 +209,10 @@ function love.draw()
     love.graphics.draw(background.image, background.x, background.y)
 
     love.graphics.print("Score: " .. score, 20, 20)
+    --set the params for printf as below to center text on-screen
     love.graphics.printf("Level: " .. level, 0, 20, love.graphics.getWidth(), "center")
     love.graphics.print("Lives: " .. lives, love.graphics.getWidth()-70, 20)
+
     player:draw()
     if bonusInPlay then
         bonus:draw()
@@ -186,7 +220,6 @@ function love.draw()
     for n, e in ipairs (listOfEnemies) do
         e:draw()
     end
-    --enemy:draw()
     for i, v in ipairs (listOfBullets) do
         v:draw(dt)
     end
@@ -208,10 +241,13 @@ function love.keypressed(key)
     elseif key == "return" then 
         --start game
         startScreen = false
+        --stop the intro music
+        love.audio.stop()
     end
 end
 
 --check if player has moved to another application window
+--if so, pause the game
 function love.focus(f)
     gamePaused = not f
 end
@@ -240,9 +276,12 @@ function levelUp()
     end
 
     love.graphics.clear()
-    love.graphics.print("LEVEL : " .. level, love.graphics.getWidth() / 2 -50, love.graphics.getHeight() / 3)
+    love.graphics.setNewFont(18) -- the number denotes the font size
+
+    love.graphics.printf("LEVEL : " .. level, 0, love.graphics.getHeight() / 3, love.graphics.getWidth(), "center")
     love.graphics.present()
     local start = os.time()
     repeat until os.time() > start + 1.5
+    love.graphics.setNewFont(12) 
 end
 

@@ -28,7 +28,8 @@ end
 
 function Player:keyPressed(key)
     if key == "space" then
-        table.insert(listOfBullets, Bullet(self.x + (self.width/2) - 5, self.y - self.height))
+        love.audio.play(player_shoot_snd)
+        table.insert(listOfBullets, Bullet(self.x + (self.width/2) - 5, self.y - self.height)) 
     end
 end
 
