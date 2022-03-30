@@ -1,18 +1,21 @@
-Alien Invaders by Tom Millichamp March 2022
+#Alien Invaders :space_invader:
+##by Tom Millichamp March 2022
 
-Credits to:
+Written in LOVE (love2d)
+
+##Credits to:
 The following sounds from freesound.org
-suonho - ambienta-soundtrack_crystal_airlines_c4-100bpm.wav mixed with:
-REH - roswell.wav
-jonccox - Gun_Zap2.wav 
-deleted_user_5405837 - explosion_012.mp3
-newlocknew - EXPLDsgn_Powerful Explosion 2.1_EM_(28lrs).wav
-foxraid - Alien Spaceship.wav
+-suonho - ambienta-soundtrack_crystal_airlines_c4-100bpm.wav
+-REH - roswell.wav
+-jonccox - Gun_Zap2.wav 
+-deleted_user_5405837 - explosion_012.mp3
+-newlocknew - EXPLDsgn_Powerful Explosion 2.1_EM_(28lrs).wav
+-foxraid - Alien Spaceship.wav
 
 The "classic.lua" library from https://github.com/rxi/classic
 
 
-Licence:
+##Licence:
 This work is licensed under the Attribution License.
 https://creativecommons.org/licenses/by/3.0/
 
