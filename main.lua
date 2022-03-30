@@ -215,7 +215,8 @@ function love.draw()
         --display highest scorer
         local h_scores = highscore.load()
         love.graphics.printf("HIGH SCORE", 0, 400, love.graphics.getWidth(), "center")
-        love.graphics.printf(h_scores[1] .. "   " .. h_scores[2], 0, 430, love.graphics.getWidth(), "center")
+        --love.graphics.printf(h_scores[1] .. "   " .. h_scores[2], 0, 430, love.graphics.getWidth(), "center")
+        love.graphics.printf(h_scores[1], 0, 430, love.graphics.getWidth(), "center")
         
         return
     end
