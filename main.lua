@@ -11,6 +11,11 @@ bonus_ship_snd = love.audio.newSource("snd/bonus_ship.ogg", "static")
 player_dead_snd = love.audio.newSource("snd/player_dead.ogg", "static")
 player_shoot_snd = love.audio.newSource("snd/player_shoot.ogg", "static")
 
+arkham_font = "fonts/Arkham_bold.TTF"
+
+--for high scores saving
+highscore = require "libs/sick"
+
 function love.load()
     --set window size, title & background
     love.window.setMode (view_w, view_h,{resizable=false,vsync=false})
@@ -25,7 +30,7 @@ function love.load()
     love.audio.play(intro)
 
     --uses 'classic' library that emulates object classes from https://github.com/rxi/classic
-    Object=require "libs/classic"
+    Object = require "libs/classic"
 
     require "player"
     require "enemy"
@@ -48,6 +53,9 @@ function love.load()
     --when we create an enemy, we pass in the Y co-ordinate for how far down the screen it appears
     table.insert(listOfEnemies, Enemy(45))
     player = Player()
+
+    --set up the high scores file
+    highscore.set("scores")
 
     --go to the start screen
     startScreen = true
@@ -73,9 +81,9 @@ function love.update(dt)
     if bonusInPlay then
         bonus:update(dt)
     else
-        --if it isn't then create one at random
+        --if it isn't then create one at random, but only from level 3 onwards
         bonus = nil
-        if love.math.random(1,2500) == 73 then
+        if love.math.random(1,2500) == 73 and level > 2 then
             --create a new bonus alien
             bonus = Bonus()
             bonusInPlay = true
@@ -183,7 +191,7 @@ end
 function love.draw()
     if startScreen then
         -- Display Start screen with instructions
-        love.graphics.setNewFont(18)
+        love.graphics.setNewFont(arkham_font, 24)
         love.graphics.printf("Alien Invaders!!!", 0, 200, love.graphics.getWidth(), "center")
         love.graphics.setNewFont(12)
         love.graphics.printf("Arrow keys - Left & Right", 0, 250, love.graphics.getWidth(), "center")
@@ -196,12 +204,19 @@ function love.draw()
         love.graphics.printf("PAUSED", 0, love.graphics.getHeight() / 3, love.graphics.getWidth(), "center")
         return
     elseif playerDead then
-        love.graphics.setNewFont(18)
+        --save the high scores 
+        highscore.save("Bob", score)
+        love.graphics.setNewFont(arkham_font, 24)
         love.graphics.printf("GAME OVER!!", 0, 200, love.graphics.getWidth(), "center")
         love.graphics.setNewFont(12)
-        love.graphics.printf("You Scored : " .. score, 0, 250, love.graphics.getWidth(), "center")
+        love.graphics.printf("You Scored : " .. score .. "  Level : " .. level, 0, 250, love.graphics.getWidth(), "center")
         love.graphics.printf("Press 's' to play again", 0, 300, love.graphics.getWidth(), "center")
         love.graphics.printf("or 'escape' to Quit", 0, 330, love.graphics.getWidth(), "center")
+        --display highest scorer
+        local h_scores = highscore.load()
+        love.graphics.printf("HIGH SCORE", 0, 430, love.graphics.getWidth(), "center")
+        love.graphics.printf(h_scores[1] .. "   " .. h_scores[2], 0, 430, love.graphics.getWidth(), "center")
+        
         return
     end
 
@@ -234,7 +249,7 @@ function love.keypressed(key)
     if key == "space" then
         player:keyPressed(key)
     elseif key == "escape" then
-        love.event.quit()
+        love.event.quit("Thank you for Playing!")
     elseif key == "s" then 
         --restart game
         love.load()

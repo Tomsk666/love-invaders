@@ -14,6 +14,9 @@ The following sounds from freesound.org
 
 The "classic.lua" library from https://github.com/rxi/classic
 
+Arkham Font from www.dafont.com
+
+SICK Highscores functions from https://love2d.org/wiki/SICK
 
 ##  Licence:
 This work is licensed under the Attribution License.
