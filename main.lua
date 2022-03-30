@@ -1,10 +1,12 @@
---Invaders game by Tom Millichamp March 2022
+--Alien Invaders game by Tom Millichamp March 2022
 
 --set window size
 view_w = 800
 view_h = 600
-local background = {}
-
+background = {}
+background.image = love.graphics.newImage("sprites/background.png")
+background.x = 0
+background.y = 0
 
 alien_dead_snd = love.audio.newSource("snd/alien_dead.ogg", "static")
 bonus_ship_snd = love.audio.newSource("snd/bonus_ship.ogg", "static")
@@ -16,21 +18,20 @@ arkham_font = "fonts/Arkham_bold.TTF"
 --for high scores saving
 highscore = require "libs/sick"
 
+--uses 'classic' library that emulates object classes from https://github.com/rxi/classic
+Object = require "libs/classic"
+
+local utf8 = require "utf8"
+
 function love.load()
     --set window size, title & background
     love.window.setMode (view_w, view_h,{resizable=false,vsync=false})
     love.window.setTitle("Alien Invaders by Tom Millichamp")
-    background.image = love.graphics.newImage("sprites/background.png")
-    background.x = 0
-    background.y = 0
 
-    --play our intr music
+    --play our intro theme
     intro= love.audio.newSource("snd/intro.ogg", "stream")
     intro:setLooping(true)
     love.audio.play(intro)
-
-    --uses 'classic' library that emulates object classes from https://github.com/rxi/classic
-    Object = require "libs/classic"
 
     require "player"
     require "enemy"
@@ -56,6 +57,10 @@ function love.load()
 
     --set up the high scores file
     highscore.set("scores")
+
+    --set up a string to capture players name
+    playerName = ""
+    love.keyboard.setKeyRepeat(true)
 
     --go to the start screen
     startScreen = true
@@ -198,14 +203,16 @@ function love.draw()
         love.graphics.printf("Space bar - Shooot", 0, 280, love.graphics.getWidth(), "center")
         love.graphics.printf("Escape - Quit", 0, 310, love.graphics.getWidth(), "center")
         love.graphics.printf("Click Off/On Screen to Pause", 0, 340, love.graphics.getWidth(), "center")
-        love.graphics.printf("Press ENTER to Start...", 0, 400, love.graphics.getWidth(), "center")
+        --get users name:
+        love.graphics.print("Please Type your Name: " .. playerName, (love.graphics.getWidth()/2)-90, 400)
+        love.graphics.printf("Press ENTER to Start...", 0, 450, love.graphics.getWidth(), "center")
         return
     elseif gamePaused then
         love.graphics.printf("PAUSED", 0, love.graphics.getHeight() / 3, love.graphics.getWidth(), "center")
         return
     elseif playerDead then
         --save the high scores 
-        highscore.save("Bob", score)
+        highscore.save(playerName, score)
         love.graphics.setNewFont(arkham_font, 24)
         love.graphics.printf("GAME OVER!!", 0, 200, love.graphics.getWidth(), "center")
         love.graphics.setNewFont(12)
@@ -215,9 +222,8 @@ function love.draw()
         --display highest scorer
         local h_scores = highscore.load()
         love.graphics.printf("HIGH SCORE", 0, 400, love.graphics.getWidth(), "center")
-        --love.graphics.printf(h_scores[1] .. "   " .. h_scores[2], 0, 430, love.graphics.getWidth(), "center")
-        love.graphics.printf(h_scores[1], 0, 430, love.graphics.getWidth(), "center")
-        
+        love.graphics.printf(h_scores[1] .. "   " .. h_scores[2], 0, 430, love.graphics.getWidth(), "center")
+        --love.graphics.printf(h_scores[1], 0, 430, love.graphics.getWidth(), "center")
         return
     end
 
@@ -228,7 +234,7 @@ function love.draw()
     --set the params for printf as below to center text on-screen
     love.graphics.printf("Level: " .. level, 0, 20, love.graphics.getWidth(), "center")
     love.graphics.print("Lives: " .. lives, love.graphics.getWidth()-70, 20)
-
+    --draw pplayer, bonus, alines, bullets & bombs!
     player:draw()
     if bonusInPlay then
         bonus:draw()
@@ -244,6 +250,12 @@ function love.draw()
     end
 end
 
+function love.textinput(t)
+    if startScreen then
+        playerName = playerName .. t
+    end
+end
+
 --check if player presses any keys
 --this gets invoked on a keypress event
 function love.keypressed(key)
@@ -251,7 +263,7 @@ function love.keypressed(key)
         player:keyPressed(key)
     elseif key == "escape" then
         love.event.quit("Thank you for Playing!")
-    elseif key == "s" then 
+    elseif key == "s" and not startScreen then 
         --restart game
         love.load()
     elseif key == "return" then 
@@ -259,6 +271,13 @@ function love.keypressed(key)
         startScreen = false
         --stop the intro music
         love.audio.stop()
+        --turn off key repeat
+        love.keyboard.setKeyRepeat(false)
+    elseif key == "backspace" then
+        local byteoffset = utf8.offset(playerName,-1)
+        if byteoffset then
+            playerName = string.sub(playerName, 1, byteoffset-1)
+        end
     end
 end
 
@@ -278,7 +297,7 @@ function levelUp()
         enemySpeed = enemySpeed + (level * 5)
     end
 
-    --reove the bonus alien in case it is still live
+    --remove the bonus alien in case it is still live
     bonusInPlay=false
 
     --remove all existng aliens
@@ -287,13 +306,13 @@ function levelUp()
     end
 
       --create new ones (number of aliens depending on level)
+      --put them at random Y pixels
     for i = 1, level do
         table.insert (listOfEnemies, Enemy(40 + (25 * i)))
     end
 
     love.graphics.clear()
-    love.graphics.setNewFont(18) -- the number denotes the font size
-
+    love.graphics.setNewFont(20) -- the number denotes the font size
     love.graphics.printf("LEVEL : " .. level, 0, love.graphics.getHeight() / 3, love.graphics.getWidth(), "center")
     love.graphics.present()
     local start = os.time()
