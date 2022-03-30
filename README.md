@@ -1,6 +1,6 @@
-# Alien Invaders :space_invader:
+# Alien Invaders 
 ##  by Tom Millichamp March 2022
-
+:space_invader:
 Written in LOVE (love2d). A simple space invaders type game
 
 ##  Credits to:
