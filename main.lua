@@ -1,5 +1,10 @@
 --Alien Invaders game by Tom Millichamp March 2022
 
+--uncomment for debugging:
+--if os.getenv("LOCAL_LUA_DEBUGGER_VSCODE") == "1" then 
+--    require("lldebugger").start() 
+--end 
+
 --set window size
 view_w = 800
 view_h = 600
@@ -12,6 +17,7 @@ alien_dead_snd = love.audio.newSource("snd/alien_dead.ogg", "static")
 bonus_ship_snd = love.audio.newSource("snd/bonus_ship.ogg", "static")
 player_dead_snd = love.audio.newSource("snd/player_dead.ogg", "static")
 player_shoot_snd = love.audio.newSource("snd/player_shoot.ogg", "static")
+big_bonus_snd = love.audio.newSource("snd/big_bonus.ogg", "static")
 
 arkham_font = "fonts/Arkham_bold.TTF"
 
@@ -46,6 +52,8 @@ function love.load()
     enemySpeed = 35
     bombSpeed = 400
     bonusInPlay = false
+    bigBonus = 0
+    bigBonusText = {"B","BO","BON","BONU","BONUS"}
 
     listOfBullets = {} -- create a table (array) to store bullet objects
     listOfBombs = {} -- for alien bombs
@@ -61,6 +69,7 @@ function love.load()
 
     --set up a string to capture players name
     playerName = ""
+    love.event.clear()
     love.keyboard.setKeyRepeat(true)
 
     --go to the start screen
@@ -155,6 +164,22 @@ function love.update(dt)
                     repeat until os.time() > start + 0.05
                     bonus.image=love.graphics.newImage("sprites/Invader_red.png")
                     bonusInPlay=false
+                    --update the big bonus where if you hit 5 bonus aliens you get 
+                    --the word bonus at top of screen & score and extra 100
+                    bigBonus=bigBonus+1
+                    if bigBonus == 5 then
+                        love.audio.play(big_bonus_snd)
+                        score = score + 150
+                        bigBonus = 0
+                        love.graphics.setNewFont(arkham_font, 24)
+                        love.graphics.clear()
+                        love.graphics.printf("B O N U S !!!", 0, love.graphics.getHeight() / 3, love.graphics.getWidth(), "center")
+                        love.graphics.present()
+                        local start = os.time()
+                        repeat until os.time() > start + 0.05
+                        love.graphics.setNewFont(12)
+                    end
+
                 end
             end
 
@@ -205,8 +230,10 @@ function love.draw()
         love.graphics.printf("Escape - Quit", 0, 310, love.graphics.getWidth(), "center")
         love.graphics.printf("Click Off/On Screen to Pause", 0, 340, love.graphics.getWidth(), "center")
         --get users name:
-        love.graphics.print("Please Type your Name: " .. playerName, (love.graphics.getWidth()/2)-90, 400)
+        love.graphics.setNewFont(14)
+        love.graphics.print("Please Type your Name:> " .. playerName, (love.graphics.getWidth()/2)-90, 400)
         love.graphics.printf("Press ENTER to Start...", 0, 450, love.graphics.getWidth(), "center")
+        love.graphics.setNewFont(12)
         return
     elseif gamePaused then
         love.graphics.printf("PAUSED", 0, love.graphics.getHeight() / 3, love.graphics.getWidth(), "center")
@@ -233,7 +260,12 @@ function love.draw()
 
     love.graphics.print("Score: " .. score, 20, 20)
     --set the params for printf as below to center text on-screen
-    love.graphics.printf("Level: " .. level, 0, 20, love.graphics.getWidth(), "center")
+    --love.graphics.printf("Level: " .. level, 0, 20, love.graphics.getWidth(), "center")
+    if bigBonus > 0 then
+        love.graphics.setNewFont(18)
+        love.graphics.printf(bigBonusText[bigBonus], 0, 20, love.graphics.getWidth(), "center")
+        love.graphics.setNewFont(12)
+    end
     love.graphics.print("Lives: " .. lives, love.graphics.getWidth()-70, 20)
     --draw pplayer, bonus, alines, bullets & bombs!
     player:draw()

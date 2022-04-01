@@ -12,6 +12,7 @@ The following sounds from freesound.org
 - deleted_user_5405837 - explosion_012.mp3
 - newlocknew - EXPLDsgn_Powerful Explosion 2.1_EM_(28lrs).wav
 - foxraid - Alien Spaceship.wav
+- Harbour11 - Trumpet1.wav
 
 The "classic.lua" library from https://github.com/rxi/classic
 
