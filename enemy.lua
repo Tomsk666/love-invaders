@@ -35,8 +35,8 @@ function Enemy:update(dt)
     timer = timer + dt * self.speed
 
     --randomly launch a bomb
-    if love.math.random(1,200-(level * 10)) == 50 then
-        table.insert(listOfBombs, Bomb(self.x + (self.width/2), self.y))
+    if love.math.random(1,500-(level * 10)) == 50 then
+        table.insert(listOfBombs, Bomb(self.x + (self.width/2), self.y + (self.height /2)))
     end
 end
 

@@ -44,6 +44,7 @@ function love.load()
     playerDead=false
     level = 1
     enemySpeed = 35
+    bombSpeed = 400
     bonusInPlay = false
 
     listOfBullets = {} -- create a table (array) to store bullet objects
@@ -312,7 +313,7 @@ function levelUp()
     end
 
     love.graphics.clear()
-    love.graphics.setNewFont(20) -- the number denotes the font size
+    love.graphics.setNewFont(arkham_font, 24)
     love.graphics.printf("LEVEL : " .. level, 0, love.graphics.getHeight() / 3, love.graphics.getWidth(), "center")
     love.graphics.present()
     local start = os.time()

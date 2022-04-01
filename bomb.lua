@@ -5,14 +5,14 @@ function Bomb:new(x, y)
     self.image = love.graphics.newImage("sprites/bomb.png")
     self.x = x
     self.y = y
-    self.speed = 700
+    self.speed = bombSpeed
     self.width = self.image:getWidth()
     self.height = self.image:getHeight()
 end
 
 function Bomb:update(dt)
     --move bomb down
-    self.y = self.y + self.speed * dt
+    self.y = self.y + (self.speed + (level * 10)) * dt
 
     if self.y > love.graphics.getHeight() then
         --destroy the bullet
