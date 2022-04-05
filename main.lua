@@ -11,7 +11,7 @@ view_h = 600
 background = {}
 background.image = love.graphics.newImage("sprites/background.png")
 background.x = 0
-background.y = 0
+background.y = -600
 
 alien_dead_snd = love.audio.newSource("snd/alien_dead.ogg", "static")
 bonus_ship_snd = love.audio.newSource("snd/bonus_ship.ogg", "static")
@@ -83,10 +83,11 @@ function love.update(dt)
     end
 
     --update scrolling background
-    if background.y > -600 then
-        background.y = background.y - (dt * 15)
+    --if background.y > -600 then
+    if background.y < 600 then
+        background.y = background.y + (dt * 15)
     else
-        background.y = 0
+        background.y = -600
     end
 
     --update player
@@ -171,9 +172,16 @@ function love.update(dt)
                         love.audio.play(big_bonus_snd)
                         score = score + 150
                         bigBonus = 0
+                        if level > 5 then
+                            lives = lives + 1
+                        end
                         love.graphics.setNewFont(arkham_font, 24)
                         love.graphics.clear()
-                        love.graphics.printf("B O N U S !!!", 0, love.graphics.getHeight() / 3, love.graphics.getWidth(), "center")
+                        strText = "B O N U S !!!"
+                        if level > 5 then
+                            strText = "B O N U S !!!\n EXTRA LIFE!!"
+                        end
+                        love.graphics.printf(strText, 0, love.graphics.getHeight() / 3, love.graphics.getWidth(), "center")
                         love.graphics.present()
                         local start = os.time()
                         repeat until os.time() > start + 0.05
