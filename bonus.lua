@@ -8,6 +8,7 @@ function Bonus:new()
     self.speed = enemySpeed + love.math.random(50, 100)
     self.width = self.image:getWidth()
     self.height = self.image:getHeight()
+    self.shot=false
 
     --create a quad to store the animated gif frames in the spritesheet (2 frames)
     quads = {}
@@ -19,6 +20,9 @@ function Bonus:new()
 end
 
 function Bonus:update(dt)
+    if self.shot then 
+        return
+    end
     --move enemy
     self.x = self.x + self.speed * dt
 
@@ -31,6 +35,12 @@ function Bonus:update(dt)
 end
 
 function Bonus:draw()
+    --if it's shot then draw an explosion instead of alien
+    if self.shot then
+        self.image = love.graphics.newImage("sprites/bang.png")
+        love.graphics.draw(self.image, self.x, self.y)
+        return
+    end
     --love.graphics.draw(self.image, self.x, self.y)
     --display alternating frames from quad spritesheet
     love.graphics.draw(self.image, quads[(math.floor(timer) % 2) + 1], self.x, self.y)

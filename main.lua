@@ -54,6 +54,7 @@ function love.load()
     bonusInPlay = false
     bigBonus = 0
     bigBonusText = {"B","BO","BON","BONU","BONUS"}
+    clock=0
 
     listOfBullets = {} -- create a table (array) to store bullet objects
     listOfBombs = {} -- for alien bombs
@@ -77,14 +78,15 @@ function love.load()
 end
 
 function love.update(dt)
+    clock = clock + dt
+
     --only update if in play
     if gamePaused or playerDead or startScreen then
         return
     end
 
     --update scrolling background
-    --if background.y > -600 then
-    if background.y < 600 then
+    if background.y < 0 then
         background.y = background.y + (dt * 15)
     else
         background.y = -600
@@ -110,7 +112,17 @@ function love.update(dt)
     --update our table of alien enemies
     --on each iteration, check if we hit one with our bullets
     for n,e in ipairs (listOfEnemies) do
-        --enemy:update(dt)
+        if e.shot and clock > 1 then
+            table.remove(listOfEnemies, n)
+            --if next(listOfEnemies) == nil then
+            if #listOfEnemies == 0 then
+                -- no more enemies! so Level up!
+                levelUp()
+                return
+            end
+        end
+
+        --move enemy
         e:update(dt)
 
         --update bullets player fires
@@ -124,49 +136,20 @@ function love.update(dt)
                 love.audio.play(alien_dead_snd)
                 table.remove(listOfBullets,i)
                 score = score + 10
-
-                --draw an explosion
-                love.graphics.clear()
-                --draw background
-                love.graphics.draw(background.image, background.x, background.y)
-                e.image=love.graphics.newImage("sprites/explosion.png")
-                e:draw()
-                love.graphics.present()
-                local start = os.time()
-                repeat until os.time() > start + 0.05
-                e.image=love.graphics.newImage("sprites/Invader.png")
-                
-                --remove the enemy shot
-                table.remove(listOfEnemies, n)
-
-                --check if we killed them all
-                if next(listOfEnemies) == nil then
-                    -- no more enemies! so Level up!
-                    levelUp()
-                    return
-                 end
-                
+                --mark the alien as shot
+                e.shot = true    
+                break  
             end
             --check if bullet hit bonus
-            if bonusInPlay and not v.dead then
+            if bonusInPlay and not v.dead and not bonus.shot then
                 v:checkCollision(bonus)
                 if v.dead then
                     love.audio.play(alien_dead_snd)
                     table.remove(listOfBullets,i)
                     score=score + 50
-                    --draw an explosion
-                    love.graphics.clear()
-                    --draw background
-                    love.graphics.draw(background.image, background.x, background.y)
-                    bonus.image=love.graphics.newImage("sprites/explosion.png")
-                    bonus:draw()
-                    love.graphics.present()
-                    local start = os.time()
-                    repeat until os.time() > start + 0.05
-                    bonus.image=love.graphics.newImage("sprites/Invader_red.png")
-                    bonusInPlay=false
                     --update the big bonus where if you hit 5 bonus aliens you get 
                     --the word bonus at top of screen & score and extra 100
+                    bonus.shot=true
                     bigBonus=bigBonus+1
                     if bigBonus == 5 then
                         love.audio.play(big_bonus_snd)
@@ -187,7 +170,7 @@ function love.update(dt)
                         repeat until os.time() > start + 0.05
                         love.graphics.setNewFont(12)
                     end
-
+                    break
                 end
             end
 
@@ -197,6 +180,8 @@ function love.update(dt)
             end
         end
     end
+
+    
 
     --update bombs aliens drop
     --and check if they hit the player
@@ -221,10 +206,22 @@ function love.update(dt)
                 playerDead=true
             end
         end
+        --check if bomb off screen
         if v.offScreen then
             table.remove(listOfBombs,i)
         end
     end
+
+    if bonusInPlay and bonus.shot and clock > 1 then
+        bonusInPlay=false
+        bonus=nil
+    end
+
+    if clock > 1 then
+        clock=0
+    end
+
+    
 end
 
 function love.draw()
@@ -267,8 +264,7 @@ function love.draw()
     love.graphics.draw(background.image, background.x, background.y)
 
     love.graphics.print("Score: " .. score, 20, 20)
-    --set the params for printf as below to center text on-screen
-    --love.graphics.printf("Level: " .. level, 0, 20, love.graphics.getWidth(), "center")
+
     if bigBonus > 0 then
         love.graphics.setNewFont(18)
         love.graphics.printf(bigBonusText[bigBonus], 0, 20, love.graphics.getWidth(), "center")
@@ -281,14 +277,16 @@ function love.draw()
         bonus:draw()
     end
     for n, e in ipairs (listOfEnemies) do
-        e:draw()
+        e:draw()   
     end
     for i, v in ipairs (listOfBullets) do
-        v:draw(dt)
+        v:draw()
     end
     for i, v in ipairs (listOfBombs) do
-        v:draw(dt)
+        v:draw()
     end
+
+    
 end
 
 function love.textinput(t)
@@ -339,12 +337,15 @@ function levelUp()
     end
 
     --remove the bonus alien in case it is still live
-    bonusInPlay=false
+    if bonusInPlay then
+        bonusInPlay=false
+        bonus=nil
+    end
 
     --remove all existng aliens
-    for k,v in pairs(listOfEnemies) do
-        listOfEnemies[k] = nil
-    end
+    listOfEnemies ={}
+    listOfBullets={}
+    listOfBombs={}
 
       --create new ones (number of aliens depending on level)
       --put them at random Y pixels
@@ -359,5 +360,7 @@ function levelUp()
     local start = os.time()
     repeat until os.time() > start + 1.5
     love.graphics.setNewFont(12) 
+
+    clock = 0
 end
 

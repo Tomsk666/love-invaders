@@ -23,13 +23,6 @@ end
 function Bullet:checkCollision(obj)
     if utilFuncs.collided(self, obj)  then
         self.dead = true
-        -- increase enemy speed
-        -- if it is going left (so negative, need to decrease)
---        if obj.speed > 0 then
---            obj.speed=obj.speed+50
---        else
---            obj.speed=obj.speed-50
---        end
     end
 
 end
